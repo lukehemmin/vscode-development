@@ -1,0 +1,877 @@
+name: Build Desktop Binaries
+
+on:
+  push:
+    branches:
+      - '**'
+    tags:
+      - 'v*'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  linux-x64:
+    name: Linux x64 (.deb/.rpm + tar)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: code-oss
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: code-oss/.nvmrc
+          cache: npm
+          cache-dependency-path: code-oss/package-lock.json
+
+      - name: Install system dependencies (rpm/deb tooling)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y rpm rpm2cpio cpio fakeroot dpkg-dev xz-utils tar
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Download built-in extensions
+        run: npm run download-builtin-extensions
+
+      - name: Build VS Code for Linux x64 (minified)
+        run: npm run gulp -- vscode-linux-x64-min
+
+      - name: Build Linux packages (.deb/.rpm)
+        run: |
+          npm run gulp -- vscode-linux-x64-prepare-deb
+          npm run gulp -- vscode-linux-x64-build-deb
+          npm run gulp -- vscode-linux-x64-prepare-rpm
+          npm run gulp -- vscode-linux-x64-build-rpm
+
+      - name: Archive Linux app folder
+        run: |
+          tar -C .. -czf VSCode-linux-x64.tar.gz VSCode-linux-x64
+
+      - name: Upload Linux artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-x64
+          if-no-files-found: error
+          retention-days: 7
+          path: |
+            code-oss/VSCode-linux-x64.tar.gz
+            code-oss/.build/linux/deb/amd64/deb/*.deb
+            code-oss/.build/linux/rpm/x86_64/*.rpm
+
+  server-linux-x64:
+    name: Server Linux x64 (REH + REH Web)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: code-oss
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: code-oss/.nvmrc
+          cache: npm
+          cache-dependency-path: code-oss/package-lock.json
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Download built-in extensions
+        run: npm run download-builtin-extensions
+
+      - name: Build VS Code Server (REH) Linux x64 (minified)
+        run: npm run gulp -- vscode-reh-linux-x64-min
+
+      - name: Archive REH package
+        run: |
+          tar -C .. -czf vscode-reh-linux-x64.tar.gz vscode-reh-linux-x64
+
+      - name: Build VS Code Server Web (REH Web) Linux x64 (minified)
+        run: npm run gulp -- vscode-reh-web-linux-x64-min
+
+      - name: Archive REH Web package
+        run: |
+          tar -C .. -czf vscode-reh-web-linux-x64.tar.gz vscode-reh-web-linux-x64
+
+      - name: Upload Server artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: server-linux-x64
+          if-no-files-found: error
+          retention-days: 7
+          path: |
+            code-oss/vscode-reh-linux-x64.tar.gz
+            code-oss/vscode-reh-web-linux-x64.tar.gz
+
+  windows-x64:
+    name: Windows x64 (installers + zip)
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+        working-directory: code-oss
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: code-oss/.nvmrc
+          cache: npm
+          cache-dependency-path: code-oss/package-lock.json
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Download built-in extensions
+        run: npm run download-builtin-extensions
+
+      - name: Build VS Code for Windows x64 (minified)
+        run: npm run gulp -- vscode-win32-x64-min
+
+      - name: Build Windows installers (User + System)
+        run: |
+          npm run gulp -- vscode-win32-x64-user-setup
+          npm run gulp -- vscode-win32-x64-system-setup
+
+      - name: Archive Windows app folder
+        run: |
+          Set-StrictMode -Version Latest
+          cd ..
+          Compress-Archive -Path 'VSCode-win32-x64\*' -DestinationPath 'VSCode-win32-x64.zip'
+          Move-Item -Path 'VSCode-win32-x64.zip' -Destination 'code-oss\VSCode-win32-x64.zip' -Force
+
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-x64
+          if-no-files-found: error
+          retention-days: 7
+          path: |
+            code-oss/VSCode-win32-x64.zip
+            code-oss/.build/win32-x64/user-setup/*.exe
+            code-oss/.build/win32-x64/system-setup/*.exe
+
+  macos-arm64:
+    name: macOS arm64 (.zip)
+    runs-on: macos-14
+    defaults:
+      run:
+        shell: bash
+        working-directory: code-oss
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: code-oss/.nvmrc
+          cache: npm
+          cache-dependency-path: code-oss/package-lock.json
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Download built-in extensions
+        run: npm run download-builtin-extensions
+
+      - name: Build VS Code for macOS arm64 (minified)
+        run: npm run gulp -- vscode-darwin-arm64-min
+
+      - name: Zip app bundle
+        run: |
+          ditto -c -k --sequesterRsrc --keepParent ../VSCode-darwin-arm64 VSCode-darwin-arm64.zip
+
+      - name: Upload macOS arm64 artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: darwin-arm64-app
+          if-no-files-found: error
+          retention-days: 7
+          path: code-oss/VSCode-darwin-arm64.zip
+
+  macos-x64:
+    name: macOS x64 (.zip)
+    runs-on: macos-13
+    defaults:
+      run:
+        shell: bash
+        working-directory: code-oss
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: code-oss/.nvmrc
+          cache: npm
+          cache-dependency-path: code-oss/package-lock.json
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Download built-in extensions
+        run: npm run download-builtin-extensions
+
+      - name: Build VS Code for macOS x64 (minified)
+        run: npm run gulp -- vscode-darwin-x64-min
+
+      - name: Zip app bundle
+        run: |
+          ditto -c -k --sequesterRsrc --keepParent ../VSCode-darwin-x64 VSCode-darwin-x64.zip
+
+      - name: Upload macOS x64 artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: darwin-x64-app
+          if-no-files-found: error
+          retention-days: 7
+          path: code-oss/VSCode-darwin-x64.zip
+
+  macos-universal:
+    name: macOS Universal (.zip)
+    runs-on: macos-14
+    needs: [macos-x64, macos-arm64]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: code-oss/.nvmrc
+
+      - name: Ensure bundler deps (build package)
+        working-directory: code-oss/build
+        run: npm ci
+
+      - name: Download mac x64 app
+        uses: actions/download-artifact@v4
+        with:
+          name: darwin-x64-app
+          path: .
+
+      - name: Download mac arm64 app
+        uses: actions/download-artifact@v4
+        with:
+          name: darwin-arm64-app
+          path: .
+
+      - name: Unzip app bundles
+        run: |
+          unzip -q VSCode-darwin-x64.zip
+          unzip -q VSCode-darwin-arm64.zip
+
+      - name: Create universal app
+        working-directory: code-oss
+        run: |
+          node ./build/darwin/create-universal-app.js "$GITHUB_WORKSPACE"
+
+      - name: Zip universal app bundle
+        run: |
+          ditto -c -k --sequesterRsrc --keepParent VSCode-darwin-universal VSCode-darwin-universal.zip
+
+      - name: Upload macOS universal artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: darwin-universal-app
+          if-no-files-found: error
+          retention-days: 7
+          path: VSCode-darwin-universal.zip
+
+  release:
+    name: Publish GitHub Release (on tag)
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    needs:
+      - linux-x64
+      - linux-arm64
+      - linux-armhf
+      - windows-x64
+      - windows-arm64
+      - macos-arm64
+      - macos-x64
+      - macos-universal
+      - server-linux-x64
+      - server-linux-arm64
+      - server-linux-armhf
+      - server-windows-x64
+      - server-windows-arm64
+      - server-macos-x64
+      - server-macos-arm64
+      - server-alpine-arm64
+    permissions:
+      contents: write
+    steps:
+      - name: Download all workflow artifacts
+        uses: actions/download-artifact@v4
+        with:
+          pattern: '*'
+          merge-multiple: true
+          path: dist
+
+      - name: List artifacts
+        run: |
+          echo "Assets to release:" && ls -R dist || true
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          name: ${{ github.ref_name }}
+          tag_name: ${{ github.ref_name }}
+          draft: false
+          generate_release_notes: true
+          files: |
+            dist/**
+
+  windows-arm64:
+    name: Windows arm64 (installers + zip)
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+        working-directory: code-oss
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: code-oss/.nvmrc
+          cache: npm
+          cache-dependency-path: code-oss/package-lock.json
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Download built-in extensions
+        run: npm run download-builtin-extensions
+
+      - name: Build VS Code for Windows arm64 (minified)
+        run: npm run gulp -- vscode-win32-arm64-min
+
+      - name: Build Windows installers (User + System)
+        run: |
+          npm run gulp -- vscode-win32-arm64-user-setup
+          npm run gulp -- vscode-win32-arm64-system-setup
+
+      - name: Archive Windows app folder
+        run: |
+          Set-StrictMode -Version Latest
+          cd ..
+          Compress-Archive -Path 'VSCode-win32-arm64\*' -DestinationPath 'VSCode-win32-arm64.zip'
+          Move-Item -Path 'VSCode-win32-arm64.zip' -Destination 'code-oss\VSCode-win32-arm64.zip' -Force
+
+      - name: Upload Windows arm64 artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-arm64
+          if-no-files-found: error
+          retention-days: 7
+          path: |
+            code-oss/VSCode-win32-arm64.zip
+            code-oss/.build/win32-arm64/user-setup/*.exe
+            code-oss/.build/win32-arm64/system-setup/*.exe
+
+  linux-arm64:
+    name: Linux arm64 (.deb/.rpm + tar)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: code-oss
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: code-oss/.nvmrc
+          cache: npm
+          cache-dependency-path: code-oss/package-lock.json
+
+      - name: Install system dependencies (rpm/deb tooling)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y rpm rpm2cpio cpio fakeroot dpkg-dev xz-utils tar
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Download built-in extensions
+        run: npm run download-builtin-extensions
+
+      - name: Build VS Code for Linux arm64 (minified)
+        run: npm run gulp -- vscode-linux-arm64-min
+
+      - name: Build Linux packages (.deb/.rpm)
+        run: |
+          npm run gulp -- vscode-linux-arm64-prepare-deb
+          npm run gulp -- vscode-linux-arm64-build-deb
+          npm run gulp -- vscode-linux-arm64-prepare-rpm
+          npm run gulp -- vscode-linux-arm64-build-rpm
+
+      - name: Archive Linux app folder
+        run: |
+          tar -C .. -czf VSCode-linux-arm64.tar.gz VSCode-linux-arm64
+
+      - name: Upload Linux arm64 artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-arm64
+          if-no-files-found: error
+          retention-days: 7
+          path: |
+            code-oss/VSCode-linux-arm64.tar.gz
+            code-oss/.build/linux/deb/arm64/deb/*.deb
+            code-oss/.build/linux/rpm/aarch64/*.rpm
+
+  linux-armhf:
+    name: Linux armhf (.deb/.rpm + tar)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: code-oss
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: code-oss/.nvmrc
+          cache: npm
+          cache-dependency-path: code-oss/package-lock.json
+
+      - name: Install system dependencies (rpm/deb tooling)
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y rpm rpm2cpio cpio fakeroot dpkg-dev xz-utils tar
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Download built-in extensions
+        run: npm run download-builtin-extensions
+
+      - name: Build VS Code for Linux armhf (minified)
+        run: npm run gulp -- vscode-linux-armhf-min
+
+      - name: Build Linux packages (.deb/.rpm)
+        run: |
+          npm run gulp -- vscode-linux-armhf-prepare-deb
+          npm run gulp -- vscode-linux-armhf-build-deb
+          npm run gulp -- vscode-linux-armhf-prepare-rpm
+          npm run gulp -- vscode-linux-armhf-build-rpm
+
+      - name: Archive Linux app folder
+        run: |
+          tar -C .. -czf VSCode-linux-armhf.tar.gz VSCode-linux-armhf
+
+      - name: Upload Linux armhf artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux-armhf
+          if-no-files-found: error
+          retention-days: 7
+          path: |
+            code-oss/VSCode-linux-armhf.tar.gz
+            code-oss/.build/linux/deb/armhf/deb/*.deb
+            code-oss/.build/linux/rpm/armv7hl/*.rpm
+
+  server-linux-arm64:
+    name: Server Linux arm64 (REH + REH Web)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: code-oss
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: code-oss/.nvmrc
+          cache: npm
+          cache-dependency-path: code-oss/package-lock.json
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Download built-in extensions
+        run: npm run download-builtin-extensions
+
+      - name: Build VS Code Server (REH) Linux arm64 (minified)
+        run: npm run gulp -- vscode-reh-linux-arm64-min
+
+      - name: Archive REH package
+        run: |
+          tar -C .. -czf vscode-reh-linux-arm64.tar.gz vscode-reh-linux-arm64
+
+      - name: Build VS Code Server Web (REH Web) Linux arm64 (minified)
+        run: npm run gulp -- vscode-reh-web-linux-arm64-min
+
+      - name: Archive REH Web package
+        run: |
+          tar -C .. -czf vscode-reh-web-linux-arm64.tar.gz vscode-reh-web-linux-arm64
+
+      - name: Upload Server artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: server-linux-arm64
+          if-no-files-found: error
+          retention-days: 7
+          path: |
+            code-oss/vscode-reh-linux-arm64.tar.gz
+            code-oss/vscode-reh-web-linux-arm64.tar.gz
+
+  server-linux-armhf:
+    name: Server Linux armhf (REH + REH Web)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: code-oss
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: code-oss/.nvmrc
+          cache: npm
+          cache-dependency-path: code-oss/package-lock.json
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Download built-in extensions
+        run: npm run download-builtin-extensions
+
+      - name: Build VS Code Server (REH) Linux armhf (minified)
+        run: npm run gulp -- vscode-reh-linux-armhf-min
+
+      - name: Archive REH package
+        run: |
+          tar -C .. -czf vscode-reh-linux-armhf.tar.gz vscode-reh-linux-armhf
+
+      - name: Build VS Code Server Web (REH Web) Linux armhf (minified)
+        run: npm run gulp -- vscode-reh-web-linux-armhf-min
+
+      - name: Archive REH Web package
+        run: |
+          tar -C .. -czf vscode-reh-web-linux-armhf.tar.gz vscode-reh-web-linux-armhf
+
+      - name: Upload Server artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: server-linux-armhf
+          if-no-files-found: error
+          retention-days: 7
+          path: |
+            code-oss/vscode-reh-linux-armhf.tar.gz
+            code-oss/vscode-reh-web-linux-armhf.tar.gz
+
+  server-windows-x64:
+    name: Server Windows x64 (REH + REH Web)
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+        working-directory: code-oss
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: code-oss/.nvmrc
+          cache: npm
+          cache-dependency-path: code-oss/package-lock.json
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Download built-in extensions
+        run: npm run download-builtin-extensions
+
+      - name: Build VS Code Server (REH) Windows x64 (minified)
+        run: npm run gulp -- vscode-reh-win32-x64-min
+
+      - name: Archive REH package
+        run: |
+          Set-StrictMode -Version Latest
+          cd ..
+          Compress-Archive -Path 'vscode-reh-win32-x64\*' -DestinationPath 'vscode-reh-win32-x64.zip'
+          Move-Item -Path 'vscode-reh-win32-x64.zip' -Destination 'code-oss\vscode-reh-win32-x64.zip' -Force
+
+      - name: Build VS Code Server Web (REH Web) Windows x64 (minified)
+        run: npm run gulp -- vscode-reh-web-win32-x64-min
+
+      - name: Archive REH Web package
+        run: |
+          Set-StrictMode -Version Latest
+          cd ..
+          Compress-Archive -Path 'vscode-reh-web-win32-x64\*' -DestinationPath 'vscode-reh-web-win32-x64.zip'
+          Move-Item -Path 'vscode-reh-web-win32-x64.zip' -Destination 'code-oss\vscode-reh-web-win32-x64.zip' -Force
+
+      - name: Upload Server artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: server-win32-x64
+          if-no-files-found: error
+          retention-days: 7
+          path: |
+            code-oss/vscode-reh-win32-x64.zip
+            code-oss/vscode-reh-web-win32-x64.zip
+
+  server-windows-arm64:
+    name: Server Windows arm64 (REH + REH Web)
+    runs-on: windows-latest
+    defaults:
+      run:
+        shell: pwsh
+        working-directory: code-oss
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: code-oss/.nvmrc
+          cache: npm
+          cache-dependency-path: code-oss/package-lock.json
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Download built-in extensions
+        run: npm run download-builtin-extensions
+
+      - name: Build VS Code Server (REH) Windows arm64 (minified)
+        run: npm run gulp -- vscode-reh-win32-arm64-min
+
+      - name: Archive REH package
+        run: |
+          Set-StrictMode -Version Latest
+          cd ..
+          Compress-Archive -Path 'vscode-reh-win32-arm64\*' -DestinationPath 'vscode-reh-win32-arm64.zip'
+          Move-Item -Path 'vscode-reh-win32-arm64.zip' -Destination 'code-oss\vscode-reh-win32-arm64.zip' -Force
+
+      - name: Build VS Code Server Web (REH Web) Windows arm64 (minified)
+        run: npm run gulp -- vscode-reh-web-win32-arm64-min
+
+      - name: Archive REH Web package
+        run: |
+          Set-StrictMode -Version Latest
+          cd ..
+          Compress-Archive -Path 'vscode-reh-web-win32-arm64\*' -DestinationPath 'vscode-reh-web-win32-arm64.zip'
+          Move-Item -Path 'vscode-reh-web-win32-arm64.zip' -Destination 'code-oss\vscode-reh-web-win32-arm64.zip' -Force
+
+      - name: Upload Server artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: server-win32-arm64
+          if-no-files-found: error
+          retention-days: 7
+          path: |
+            code-oss/vscode-reh-win32-arm64.zip
+            code-oss/vscode-reh-web-win32-arm64.zip
+
+  server-macos-x64:
+    name: Server macOS x64 (REH + REH Web)
+    runs-on: macos-13
+    defaults:
+      run:
+        shell: bash
+        working-directory: code-oss
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: code-oss/.nvmrc
+          cache: npm
+          cache-dependency-path: code-oss/package-lock.json
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Download built-in extensions
+        run: npm run download-builtin-extensions
+
+      - name: Build VS Code Server (REH) macOS x64 (minified)
+        run: npm run gulp -- vscode-reh-darwin-x64-min
+
+      - name: Archive REH package
+        run: |
+          tar -czf vscode-reh-darwin-x64.tar.gz vscode-reh-darwin-x64
+
+      - name: Build VS Code Server Web (REH Web) macOS x64 (minified)
+        run: npm run gulp -- vscode-reh-web-darwin-x64-min
+
+      - name: Archive REH Web package
+        run: |
+          tar -czf vscode-reh-web-darwin-x64.tar.gz vscode-reh-web-darwin-x64
+
+      - name: Upload Server artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: server-darwin-x64
+          if-no-files-found: error
+          retention-days: 7
+          path: |
+            code-oss/vscode-reh-darwin-x64.tar.gz
+            code-oss/vscode-reh-web-darwin-x64.tar.gz
+
+  server-macos-arm64:
+    name: Server macOS arm64 (REH + REH Web)
+    runs-on: macos-14
+    defaults:
+      run:
+        shell: bash
+        working-directory: code-oss
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: code-oss/.nvmrc
+          cache: npm
+          cache-dependency-path: code-oss/package-lock.json
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Download built-in extensions
+        run: npm run download-builtin-extensions
+
+      - name: Build VS Code Server (REH) macOS arm64 (minified)
+        run: npm run gulp -- vscode-reh-darwin-arm64-min
+
+      - name: Archive REH package
+        run: |
+          tar -czf vscode-reh-darwin-arm64.tar.gz vscode-reh-darwin-arm64
+
+      - name: Build VS Code Server Web (REH Web) macOS arm64 (minified)
+        run: npm run gulp -- vscode-reh-web-darwin-arm64-min
+
+      - name: Archive REH Web package
+        run: |
+          tar -czf vscode-reh-web-darwin-arm64.tar.gz vscode-reh-web-darwin-arm64
+
+      - name: Upload Server artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: server-darwin-arm64
+          if-no-files-found: error
+          retention-days: 7
+          path: |
+            code-oss/vscode-reh-darwin-arm64.tar.gz
+            code-oss/vscode-reh-web-darwin-arm64.tar.gz
+
+  server-alpine-arm64:
+    name: Server Alpine arm64 (REH + REH Web)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        shell: bash
+        working-directory: code-oss
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: code-oss/.nvmrc
+          cache: npm
+          cache-dependency-path: code-oss/package-lock.json
+
+      - name: Install npm dependencies
+        run: npm ci
+
+      - name: Download built-in extensions
+        run: npm run download-builtin-extensions
+
+      - name: Build VS Code Server (REH) Alpine arm64 (minified)
+        run: npm run gulp -- vscode-reh-alpine-arm64-min
+
+      - name: Archive REH package
+        run: |
+          tar -czf vscode-reh-alpine-arm64.tar.gz vscode-reh-alpine-arm64
+
+      - name: Build VS Code Server Web (REH Web) Alpine arm64 (minified)
+        run: npm run gulp -- vscode-reh-web-alpine-arm64-min
+
+      - name: Archive REH Web package
+        run: |
+          tar -czf vscode-reh-web-alpine-arm64.tar.gz vscode-reh-web-alpine-arm64
+
+      - name: Upload Server artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: server-alpine-arm64
+          if-no-files-found: error
+          retention-days: 7
+          path: |
+            code-oss/vscode-reh-alpine-arm64.tar.gz
+            code-oss/vscode-reh-web-alpine-arm64.tar.gz

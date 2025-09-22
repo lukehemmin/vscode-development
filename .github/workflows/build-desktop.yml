@@ -41,7 +41,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y rpm rpm2cpio cpio fakeroot dpkg-dev xz-utils tar
-          sudo apt-get install -y libkrb5-dev libgssapi-krb5-2 build-essential python3-dev
+          sudo apt-get install -y libkrb5-dev libgssapi-krb5-2 build-essential python3-dev libx11-dev libxkbfile-dev
 
       - name: Install npm dependencies
         run: |
@@ -102,7 +102,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libkrb5-dev libgssapi-krb5-2 build-essential python3-dev
+          sudo apt-get install -y libkrb5-dev libgssapi-krb5-2 build-essential python3-dev libx11-dev libxkbfile-dev
 
       - name: Install npm dependencies
         run: |
@@ -476,7 +476,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y rpm rpm2cpio cpio fakeroot dpkg-dev xz-utils tar
-          sudo apt-get install -y libkrb5-dev libgssapi-krb5-2 build-essential python3-dev
+          sudo apt-get install -y libkrb5-dev libgssapi-krb5-2 build-essential python3-dev libx11-dev libxkbfile-dev
 
       - name: Install npm dependencies
         run: |
@@ -538,7 +538,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y rpm rpm2cpio cpio fakeroot dpkg-dev xz-utils tar
-          sudo apt-get install -y libkrb5-dev libgssapi-krb5-2 build-essential python3-dev
+          sudo apt-get install -y libkrb5-dev libgssapi-krb5-2 build-essential python3-dev libx11-dev libxkbfile-dev
 
       - name: Install npm dependencies
         run: |
@@ -599,7 +599,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libkrb5-dev libgssapi-krb5-2 build-essential python3-dev
+          sudo apt-get install -y libkrb5-dev libgssapi-krb5-2 build-essential python3-dev libx11-dev libxkbfile-dev
 
       - name: Install npm dependencies
         run: |
@@ -659,7 +659,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libkrb5-dev libgssapi-krb5-2 build-essential python3-dev
+          sudo apt-get install -y libkrb5-dev libgssapi-krb5-2 build-essential python3-dev libx11-dev libxkbfile-dev
 
       - name: Install npm dependencies
         run: |
@@ -957,7 +957,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libkrb5-dev libgssapi-krb5-2 build-essential python3-dev
+          sudo apt-get install -y libkrb5-dev libgssapi-krb5-2 build-essential python3-dev libx11-dev libxkbfile-dev
 
       - name: Install npm dependencies
         run: |

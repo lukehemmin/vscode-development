@@ -7,6 +7,9 @@ on:
     tags:
       - 'v*'
 
+env:
+  NODE_OPTIONS: '--max-old-space-size=8192'
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -15,6 +18,7 @@ jobs:
   linux-x64:
     name: Linux x64 (.deb/.rpm + tar)
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     defaults:
       run:
         shell: bash
@@ -38,7 +42,9 @@ jobs:
           sudo apt-get install -y rpm rpm2cpio cpio fakeroot dpkg-dev xz-utils tar
 
       - name: Install npm dependencies
-        run: npm ci
+        run: |
+          npm ci --no-audit --no-fund
+          npm list --depth=0
 
       - name: Download built-in extensions
         run: npm run download-builtin-extensions
@@ -71,6 +77,7 @@ jobs:
   server-linux-x64:
     name: Server Linux x64 (REH + REH Web)
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     defaults:
       run:
         shell: bash
@@ -89,7 +96,9 @@ jobs:
           cache-dependency-path: code-oss/package-lock.json
 
       - name: Install npm dependencies
-        run: npm ci
+        run: |
+          npm ci --no-audit --no-fund
+          npm list --depth=0
 
       - name: Download built-in extensions
         run: npm run download-builtin-extensions
@@ -121,6 +130,7 @@ jobs:
   windows-x64:
     name: Windows x64 (installers + zip)
     runs-on: windows-latest
+    timeout-minutes: 60
     defaults:
       run:
         shell: pwsh
@@ -139,7 +149,9 @@ jobs:
           cache-dependency-path: code-oss/package-lock.json
 
       - name: Install npm dependencies
-        run: npm ci
+        run: |
+          npm ci --no-audit --no-fund
+          npm list --depth=0
 
       - name: Download built-in extensions
         run: npm run download-builtin-extensions
@@ -173,6 +185,7 @@ jobs:
   macos-arm64:
     name: macOS arm64 (.zip)
     runs-on: macos-14
+    timeout-minutes: 60
     defaults:
       run:
         shell: bash
@@ -191,7 +204,9 @@ jobs:
           cache-dependency-path: code-oss/package-lock.json
 
       - name: Install npm dependencies
-        run: npm ci
+        run: |
+          npm ci --no-audit --no-fund
+          npm list --depth=0
 
       - name: Download built-in extensions
         run: npm run download-builtin-extensions
@@ -214,6 +229,7 @@ jobs:
   macos-x64:
     name: macOS x64 (.zip)
     runs-on: macos-13
+    timeout-minutes: 60
     defaults:
       run:
         shell: bash
@@ -232,7 +248,9 @@ jobs:
           cache-dependency-path: code-oss/package-lock.json
 
       - name: Install npm dependencies
-        run: npm ci
+        run: |
+          npm ci --no-audit --no-fund
+          npm list --depth=0
 
       - name: Download built-in extensions
         run: npm run download-builtin-extensions
@@ -255,7 +273,9 @@ jobs:
   macos-universal:
     name: macOS Universal (.zip)
     runs-on: macos-14
+    timeout-minutes: 30
     needs: [macos-x64, macos-arm64]
+    if: always() && (needs.macos-x64.result == 'success' && needs.macos-arm64.result == 'success')
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -308,7 +328,8 @@ jobs:
   release:
     name: Publish GitHub Release (on tag)
     runs-on: ubuntu-latest
-    if: startsWith(github.ref, 'refs/tags/')
+    timeout-minutes: 10
+    if: startsWith(github.ref, 'refs/tags/') && always()
     needs:
       - linux-x64
       - linux-arm64
@@ -353,6 +374,7 @@ jobs:
   windows-arm64:
     name: Windows arm64 (installers + zip)
     runs-on: windows-latest
+    timeout-minutes: 60
     defaults:
       run:
         shell: pwsh
@@ -371,7 +393,9 @@ jobs:
           cache-dependency-path: code-oss/package-lock.json
 
       - name: Install npm dependencies
-        run: npm ci
+        run: |
+          npm ci --no-audit --no-fund
+          npm list --depth=0
 
       - name: Download built-in extensions
         run: npm run download-builtin-extensions
@@ -405,6 +429,7 @@ jobs:
   linux-arm64:
     name: Linux arm64 (.deb/.rpm + tar)
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     defaults:
       run:
         shell: bash
@@ -428,7 +453,9 @@ jobs:
           sudo apt-get install -y rpm rpm2cpio cpio fakeroot dpkg-dev xz-utils tar
 
       - name: Install npm dependencies
-        run: npm ci
+        run: |
+          npm ci --no-audit --no-fund
+          npm list --depth=0
 
       - name: Download built-in extensions
         run: npm run download-builtin-extensions
@@ -461,6 +488,7 @@ jobs:
   linux-armhf:
     name: Linux armhf (.deb/.rpm + tar)
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     defaults:
       run:
         shell: bash
@@ -484,7 +512,9 @@ jobs:
           sudo apt-get install -y rpm rpm2cpio cpio fakeroot dpkg-dev xz-utils tar
 
       - name: Install npm dependencies
-        run: npm ci
+        run: |
+          npm ci --no-audit --no-fund
+          npm list --depth=0
 
       - name: Download built-in extensions
         run: npm run download-builtin-extensions
@@ -517,6 +547,7 @@ jobs:
   server-linux-arm64:
     name: Server Linux arm64 (REH + REH Web)
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     defaults:
       run:
         shell: bash
@@ -535,7 +566,9 @@ jobs:
           cache-dependency-path: code-oss/package-lock.json
 
       - name: Install npm dependencies
-        run: npm ci
+        run: |
+          npm ci --no-audit --no-fund
+          npm list --depth=0
 
       - name: Download built-in extensions
         run: npm run download-builtin-extensions
@@ -567,6 +600,7 @@ jobs:
   server-linux-armhf:
     name: Server Linux armhf (REH + REH Web)
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     defaults:
       run:
         shell: bash
@@ -585,7 +619,9 @@ jobs:
           cache-dependency-path: code-oss/package-lock.json
 
       - name: Install npm dependencies
-        run: npm ci
+        run: |
+          npm ci --no-audit --no-fund
+          npm list --depth=0
 
       - name: Download built-in extensions
         run: npm run download-builtin-extensions
@@ -617,6 +653,7 @@ jobs:
   server-windows-x64:
     name: Server Windows x64 (REH + REH Web)
     runs-on: windows-latest
+    timeout-minutes: 60
     defaults:
       run:
         shell: pwsh
@@ -635,7 +672,9 @@ jobs:
           cache-dependency-path: code-oss/package-lock.json
 
       - name: Install npm dependencies
-        run: npm ci
+        run: |
+          npm ci --no-audit --no-fund
+          npm list --depth=0
 
       - name: Download built-in extensions
         run: npm run download-builtin-extensions
@@ -673,6 +712,7 @@ jobs:
   server-windows-arm64:
     name: Server Windows arm64 (REH + REH Web)
     runs-on: windows-latest
+    timeout-minutes: 60
     defaults:
       run:
         shell: pwsh
@@ -691,7 +731,9 @@ jobs:
           cache-dependency-path: code-oss/package-lock.json
 
       - name: Install npm dependencies
-        run: npm ci
+        run: |
+          npm ci --no-audit --no-fund
+          npm list --depth=0
 
       - name: Download built-in extensions
         run: npm run download-builtin-extensions
@@ -729,6 +771,7 @@ jobs:
   server-macos-x64:
     name: Server macOS x64 (REH + REH Web)
     runs-on: macos-13
+    timeout-minutes: 60
     defaults:
       run:
         shell: bash
@@ -747,7 +790,9 @@ jobs:
           cache-dependency-path: code-oss/package-lock.json
 
       - name: Install npm dependencies
-        run: npm ci
+        run: |
+          npm ci --no-audit --no-fund
+          npm list --depth=0
 
       - name: Download built-in extensions
         run: npm run download-builtin-extensions
@@ -779,6 +824,7 @@ jobs:
   server-macos-arm64:
     name: Server macOS arm64 (REH + REH Web)
     runs-on: macos-14
+    timeout-minutes: 60
     defaults:
       run:
         shell: bash
@@ -797,7 +843,9 @@ jobs:
           cache-dependency-path: code-oss/package-lock.json
 
       - name: Install npm dependencies
-        run: npm ci
+        run: |
+          npm ci --no-audit --no-fund
+          npm list --depth=0
 
       - name: Download built-in extensions
         run: npm run download-builtin-extensions
@@ -829,6 +877,7 @@ jobs:
   server-alpine-arm64:
     name: Server Alpine arm64 (REH + REH Web)
     runs-on: ubuntu-latest
+    timeout-minutes: 60
     defaults:
       run:
         shell: bash
@@ -847,7 +896,9 @@ jobs:
           cache-dependency-path: code-oss/package-lock.json
 
       - name: Install npm dependencies
-        run: npm ci
+        run: |
+          npm ci --no-audit --no-fund
+          npm list --depth=0
 
       - name: Download built-in extensions
         run: npm run download-builtin-extensions

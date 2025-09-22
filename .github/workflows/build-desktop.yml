@@ -46,8 +46,8 @@ jobs:
       - name: Install npm dependencies
         run: |
           # Try to install with retries and better error handling
-          npm ci --no-audit --no-fund --prefer-offline --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3 || \
-          (echo "Initial npm install failed, trying without prefer-offline..." && npm ci --no-audit --no-fund --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3)
+          npm ci --no-audit --no-fund --prefer-offline --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3 ||
+          (echo "Initial npm install failed, trying without prefer-offline..."; npm ci --no-audit --no-fund --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3)
           npm list --depth=0
 
       - name: Download built-in extensions
@@ -107,8 +107,8 @@ jobs:
       - name: Install npm dependencies
         run: |
           # Try to install with retries and better error handling
-          npm ci --no-audit --no-fund --prefer-offline --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3 || \
-          (echo "Initial npm install failed, trying without prefer-offline..." && npm ci --no-audit --no-fund --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3)
+          npm ci --no-audit --no-fund --prefer-offline --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3 ||
+          (echo "Initial npm install failed, trying without prefer-offline..."; npm ci --no-audit --no-fund --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3)
           npm list --depth=0
 
       - name: Download built-in extensions
@@ -162,8 +162,8 @@ jobs:
       - name: Install npm dependencies
         run: |
           # Try to install with retries and better error handling
-          npm ci --no-audit --no-fund --prefer-offline --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3 || \
-          (echo "Initial npm install failed, trying without prefer-offline..." && npm ci --no-audit --no-fund --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3)
+          npm ci --no-audit --no-fund --prefer-offline --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3 ||
+          (echo "Initial npm install failed, trying without prefer-offline..."; npm ci --no-audit --no-fund --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3)
           npm list --depth=0
 
       - name: Download built-in extensions
@@ -222,8 +222,8 @@ jobs:
       - name: Install npm dependencies
         run: |
           # Try to install with retries and better error handling
-          npm ci --no-audit --no-fund --prefer-offline --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3 || \
-          (echo "Initial npm install failed, trying without prefer-offline..." && npm ci --no-audit --no-fund --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3)
+          npm ci --no-audit --no-fund --prefer-offline --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3 ||
+          (echo "Initial npm install failed, trying without prefer-offline..."; npm ci --no-audit --no-fund --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3)
           npm list --depth=0
 
       - name: Download built-in extensions
@@ -271,8 +271,8 @@ jobs:
       - name: Install npm dependencies
         run: |
           # Try to install with retries and better error handling
-          npm ci --no-audit --no-fund --prefer-offline --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3 || \
-          (echo "Initial npm install failed, trying without prefer-offline..." && npm ci --no-audit --no-fund --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3)
+          npm ci --no-audit --no-fund --prefer-offline --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3 ||
+          (echo "Initial npm install failed, trying without prefer-offline..."; npm ci --no-audit --no-fund --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3)
           npm list --depth=0
 
       - name: Download built-in extensions
@@ -418,8 +418,8 @@ jobs:
       - name: Install npm dependencies
         run: |
           # Try to install with retries and better error handling
-          npm ci --no-audit --no-fund --prefer-offline --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3 || \
-          (echo "Initial npm install failed, trying without prefer-offline..." && npm ci --no-audit --no-fund --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3)
+          npm ci --no-audit --no-fund --prefer-offline --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3 ||
+          (echo "Initial npm install failed, trying without prefer-offline..."; npm ci --no-audit --no-fund --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3)
           npm list --depth=0
 
       - name: Download built-in extensions
@@ -481,8 +481,8 @@ jobs:
       - name: Install npm dependencies
         run: |
           # Try to install with retries and better error handling
-          npm ci --no-audit --no-fund --prefer-offline --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3 || \
-          (echo "Initial npm install failed, trying without prefer-offline..." && npm ci --no-audit --no-fund --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3)
+          npm ci --no-audit --no-fund --prefer-offline --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3 ||
+          (echo "Initial npm install failed, trying without prefer-offline..."; npm ci --no-audit --no-fund --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3)
           npm list --depth=0
 
       - name: Download built-in extensions
@@ -543,8 +543,8 @@ jobs:
       - name: Install npm dependencies
         run: |
           # Try to install with retries and better error handling
-          npm ci --no-audit --no-fund --prefer-offline --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3 || \
-          (echo "Initial npm install failed, trying without prefer-offline..." && npm ci --no-audit --no-fund --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3)
+          npm ci --no-audit --no-fund --prefer-offline --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3 ||
+          (echo "Initial npm install failed, trying without prefer-offline..."; npm ci --no-audit --no-fund --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3)
           npm list --depth=0
 
       - name: Download built-in extensions
@@ -604,8 +604,8 @@ jobs:
       - name: Install npm dependencies
         run: |
           # Try to install with retries and better error handling
-          npm ci --no-audit --no-fund --prefer-offline --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3 || \
-          (echo "Initial npm install failed, trying without prefer-offline..." && npm ci --no-audit --no-fund --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3)
+          npm ci --no-audit --no-fund --prefer-offline --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3 ||
+          (echo "Initial npm install failed, trying without prefer-offline..."; npm ci --no-audit --no-fund --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3)
           npm list --depth=0
 
       - name: Download built-in extensions
@@ -664,8 +664,8 @@ jobs:
       - name: Install npm dependencies
         run: |
           # Try to install with retries and better error handling
-          npm ci --no-audit --no-fund --prefer-offline --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3 || \
-          (echo "Initial npm install failed, trying without prefer-offline..." && npm ci --no-audit --no-fund --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3)
+          npm ci --no-audit --no-fund --prefer-offline --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3 ||
+          (echo "Initial npm install failed, trying without prefer-offline..."; npm ci --no-audit --no-fund --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3)
           npm list --depth=0
 
       - name: Download built-in extensions
@@ -719,8 +719,8 @@ jobs:
       - name: Install npm dependencies
         run: |
           # Try to install with retries and better error handling
-          npm ci --no-audit --no-fund --prefer-offline --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3 || \
-          (echo "Initial npm install failed, trying without prefer-offline..." && npm ci --no-audit --no-fund --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3)
+          npm ci --no-audit --no-fund --prefer-offline --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3 ||
+          (echo "Initial npm install failed, trying without prefer-offline..."; npm ci --no-audit --no-fund --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3)
           npm list --depth=0
 
       - name: Download built-in extensions
@@ -780,8 +780,8 @@ jobs:
       - name: Install npm dependencies
         run: |
           # Try to install with retries and better error handling
-          npm ci --no-audit --no-fund --prefer-offline --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3 || \
-          (echo "Initial npm install failed, trying without prefer-offline..." && npm ci --no-audit --no-fund --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3)
+          npm ci --no-audit --no-fund --prefer-offline --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3 ||
+          (echo "Initial npm install failed, trying without prefer-offline..."; npm ci --no-audit --no-fund --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3)
           npm list --depth=0
 
       - name: Download built-in extensions
@@ -844,8 +844,8 @@ jobs:
       - name: Install npm dependencies
         run: |
           # Try to install with retries and better error handling
-          npm ci --no-audit --no-fund --prefer-offline --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3 || \
-          (echo "Initial npm install failed, trying without prefer-offline..." && npm ci --no-audit --no-fund --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3)
+          npm ci --no-audit --no-fund --prefer-offline --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3 ||
+          (echo "Initial npm install failed, trying without prefer-offline..."; npm ci --no-audit --no-fund --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3)
           npm list --depth=0
 
       - name: Download built-in extensions
@@ -902,8 +902,8 @@ jobs:
       - name: Install npm dependencies
         run: |
           # Try to install with retries and better error handling
-          npm ci --no-audit --no-fund --prefer-offline --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3 || \
-          (echo "Initial npm install failed, trying without prefer-offline..." && npm ci --no-audit --no-fund --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3)
+          npm ci --no-audit --no-fund --prefer-offline --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3 ||
+          (echo "Initial npm install failed, trying without prefer-offline..."; npm ci --no-audit --no-fund --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3)
           npm list --depth=0
 
       - name: Download built-in extensions
@@ -962,8 +962,8 @@ jobs:
       - name: Install npm dependencies
         run: |
           # Try to install with retries and better error handling
-          npm ci --no-audit --no-fund --prefer-offline --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3 || \
-          (echo "Initial npm install failed, trying without prefer-offline..." && npm ci --no-audit --no-fund --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3)
+          npm ci --no-audit --no-fund --prefer-offline --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3 ||
+          (echo "Initial npm install failed, trying without prefer-offline..."; npm ci --no-audit --no-fund --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3)
           npm list --depth=0
 
       - name: Download built-in extensions

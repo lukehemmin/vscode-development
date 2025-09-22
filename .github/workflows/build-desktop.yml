@@ -18,7 +18,10 @@ concurrency:
 jobs:
   linux-x64:
     name: Linux x64 (.deb/.rpm + tar)
-    runs-on: ubuntu-latest
+    runs-on:
+      - self-hosted
+      - Linux
+      - X64
     timeout-minutes: 60
     defaults:
       run:
@@ -41,7 +44,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y rpm rpm2cpio cpio fakeroot dpkg-dev xz-utils tar
-          sudo apt-get install -y libkrb5-dev libgssapi-krb5-2 build-essential python3-dev
+          sudo apt-get install -y libkrb5-dev libgssapi-krb5-2 build-essential python3-dev libx11-dev libxkbfile-dev
 
       - name: Install npm dependencies
         run: |
@@ -80,7 +83,10 @@ jobs:
 
   server-linux-x64:
     name: Server Linux x64 (REH + REH Web)
-    runs-on: ubuntu-latest
+    runs-on:
+      - self-hosted
+      - Linux
+      - X64
     timeout-minutes: 60
     defaults:
       run:
@@ -102,7 +108,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libkrb5-dev libgssapi-krb5-2 build-essential python3-dev
+          sudo apt-get install -y libkrb5-dev libgssapi-krb5-2 build-essential python3-dev libx11-dev libxkbfile-dev
 
       - name: Install npm dependencies
         run: |
@@ -140,7 +146,10 @@ jobs:
 
   windows-x64:
     name: Windows x64 (installers + zip)
-    runs-on: windows-latest
+    runs-on:
+      - self-hosted
+      - Windows
+      - X64
     timeout-minutes: 60
     defaults:
       run:
@@ -161,10 +170,24 @@ jobs:
 
       - name: Install npm dependencies
         run: |
-          # Try to install with retries and better error handling
-          npm ci --no-audit --no-fund --prefer-offline --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3 ||
-          (echo "Initial npm install failed, trying without prefer-offline..."; npm ci --no-audit --no-fund --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3)
-          npm list --depth=0
+          $ErrorActionPreference = 'Stop'
+          $commonArgs = @(
+            '--no-audit',
+            '--no-fund',
+            '--fetch-retry-mintimeout=20000',
+            '--fetch-retry-maxtimeout=120000',
+            '--fetch-retries=3'
+          )
+          $preferOfflineArgs = $commonArgs + '--prefer-offline'
+          & npm ci @preferOfflineArgs
+          if ($LASTEXITCODE -ne 0) {
+            Write-Warning 'Initial npm install failed, trying without prefer-offline...'
+            & npm ci @commonArgs
+            if ($LASTEXITCODE -ne 0) {
+              throw 'npm ci failed on retry.'
+            }
+          }
+          & npm list --depth=0
 
       - name: Download built-in extensions
         run: npm run download-builtin-extensions
@@ -396,7 +419,10 @@ jobs:
 
   windows-arm64:
     name: Windows arm64 (installers + zip)
-    runs-on: windows-latest
+    runs-on:
+      - self-hosted
+      - Windows
+      - ARM64
     timeout-minutes: 60
     defaults:
       run:
@@ -417,10 +443,24 @@ jobs:
 
       - name: Install npm dependencies
         run: |
-          # Try to install with retries and better error handling
-          npm ci --no-audit --no-fund --prefer-offline --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3 ||
-          (echo "Initial npm install failed, trying without prefer-offline..."; npm ci --no-audit --no-fund --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3)
-          npm list --depth=0
+          $ErrorActionPreference = 'Stop'
+          $commonArgs = @(
+            '--no-audit',
+            '--no-fund',
+            '--fetch-retry-mintimeout=20000',
+            '--fetch-retry-maxtimeout=120000',
+            '--fetch-retries=3'
+          )
+          $preferOfflineArgs = $commonArgs + '--prefer-offline'
+          & npm ci @preferOfflineArgs
+          if ($LASTEXITCODE -ne 0) {
+            Write-Warning 'Initial npm install failed, trying without prefer-offline...'
+            & npm ci @commonArgs
+            if ($LASTEXITCODE -ne 0) {
+              throw 'npm ci failed on retry.'
+            }
+          }
+          & npm list --depth=0
 
       - name: Download built-in extensions
         run: npm run download-builtin-extensions
@@ -453,7 +493,10 @@ jobs:
 
   linux-arm64:
     name: Linux arm64 (.deb/.rpm + tar)
-    runs-on: ubuntu-latest
+    runs-on:
+      - self-hosted
+      - Linux
+      - ARM64
     timeout-minutes: 60
     defaults:
       run:
@@ -476,7 +519,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y rpm rpm2cpio cpio fakeroot dpkg-dev xz-utils tar
-          sudo apt-get install -y libkrb5-dev libgssapi-krb5-2 build-essential python3-dev
+          sudo apt-get install -y libkrb5-dev libgssapi-krb5-2 build-essential python3-dev libx11-dev libxkbfile-dev
 
       - name: Install npm dependencies
         run: |
@@ -515,7 +558,10 @@ jobs:
 
   linux-armhf:
     name: Linux armhf (.deb/.rpm + tar)
-    runs-on: ubuntu-latest
+    runs-on:
+      - self-hosted
+      - Linux
+      - ARM
     timeout-minutes: 60
     defaults:
       run:
@@ -538,7 +584,7 @@ jobs:
         run: |
           sudo apt-get update
           sudo apt-get install -y rpm rpm2cpio cpio fakeroot dpkg-dev xz-utils tar
-          sudo apt-get install -y libkrb5-dev libgssapi-krb5-2 build-essential python3-dev
+          sudo apt-get install -y libkrb5-dev libgssapi-krb5-2 build-essential python3-dev libx11-dev libxkbfile-dev
 
       - name: Install npm dependencies
         run: |
@@ -577,7 +623,10 @@ jobs:
 
   server-linux-arm64:
     name: Server Linux arm64 (REH + REH Web)
-    runs-on: ubuntu-latest
+    runs-on:
+      - self-hosted
+      - Linux
+      - ARM
     timeout-minutes: 60
     defaults:
       run:
@@ -599,7 +648,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libkrb5-dev libgssapi-krb5-2 build-essential python3-dev
+          sudo apt-get install -y libkrb5-dev libgssapi-krb5-2 build-essential python3-dev libx11-dev libxkbfile-dev
 
       - name: Install npm dependencies
         run: |
@@ -637,7 +686,10 @@ jobs:
 
   server-linux-armhf:
     name: Server Linux armhf (REH + REH Web)
-    runs-on: ubuntu-latest
+    runs-on:
+      - self-hosted
+      - Linux
+      - ARM
     timeout-minutes: 60
     defaults:
       run:
@@ -659,7 +711,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libkrb5-dev libgssapi-krb5-2 build-essential python3-dev
+          sudo apt-get install -y libkrb5-dev libgssapi-krb5-2 build-essential python3-dev libx11-dev libxkbfile-dev
 
       - name: Install npm dependencies
         run: |
@@ -697,7 +749,10 @@ jobs:
 
   server-windows-x64:
     name: Server Windows x64 (REH + REH Web)
-    runs-on: windows-latest
+    runs-on:
+      - self-hosted
+      - Windows
+      - X64
     timeout-minutes: 60
     defaults:
       run:
@@ -718,10 +773,24 @@ jobs:
 
       - name: Install npm dependencies
         run: |
-          # Try to install with retries and better error handling
-          npm ci --no-audit --no-fund --prefer-offline --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3 ||
-          (echo "Initial npm install failed, trying without prefer-offline..."; npm ci --no-audit --no-fund --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3)
-          npm list --depth=0
+          $ErrorActionPreference = 'Stop'
+          $commonArgs = @(
+            '--no-audit',
+            '--no-fund',
+            '--fetch-retry-mintimeout=20000',
+            '--fetch-retry-maxtimeout=120000',
+            '--fetch-retries=3'
+          )
+          $preferOfflineArgs = $commonArgs + '--prefer-offline'
+          & npm ci @preferOfflineArgs
+          if ($LASTEXITCODE -ne 0) {
+            Write-Warning 'Initial npm install failed, trying without prefer-offline...'
+            & npm ci @commonArgs
+            if ($LASTEXITCODE -ne 0) {
+              throw 'npm ci failed on retry.'
+            }
+          }
+          & npm list --depth=0
 
       - name: Download built-in extensions
         run: npm run download-builtin-extensions
@@ -758,7 +827,10 @@ jobs:
 
   server-windows-arm64:
     name: Server Windows arm64 (REH + REH Web)
-    runs-on: windows-latest
+    runs-on:
+      - self-hosted
+      - Windows
+      - ARM64
     timeout-minutes: 60
     defaults:
       run:
@@ -779,10 +851,24 @@ jobs:
 
       - name: Install npm dependencies
         run: |
-          # Try to install with retries and better error handling
-          npm ci --no-audit --no-fund --prefer-offline --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3 ||
-          (echo "Initial npm install failed, trying without prefer-offline..."; npm ci --no-audit --no-fund --fetch-retry-mintimeout=20000 --fetch-retry-maxtimeout=120000 --fetch-retries=3)
-          npm list --depth=0
+          $ErrorActionPreference = 'Stop'
+          $commonArgs = @(
+            '--no-audit',
+            '--no-fund',
+            '--fetch-retry-mintimeout=20000',
+            '--fetch-retry-maxtimeout=120000',
+            '--fetch-retries=3'
+          )
+          $preferOfflineArgs = $commonArgs + '--prefer-offline'
+          & npm ci @preferOfflineArgs
+          if ($LASTEXITCODE -ne 0) {
+            Write-Warning 'Initial npm install failed, trying without prefer-offline...'
+            & npm ci @commonArgs
+            if ($LASTEXITCODE -ne 0) {
+              throw 'npm ci failed on retry.'
+            }
+          }
+          & npm list --depth=0
 
       - name: Download built-in extensions
         run: npm run download-builtin-extensions
@@ -957,7 +1043,7 @@ jobs:
       - name: Install system dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y libkrb5-dev libgssapi-krb5-2 build-essential python3-dev
+          sudo apt-get install -y libkrb5-dev libgssapi-krb5-2 build-essential python3-dev libx11-dev libxkbfile-dev
 
       - name: Install npm dependencies
         run: |
